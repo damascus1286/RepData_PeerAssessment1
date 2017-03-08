@@ -1,13 +1,29 @@
----
-title: "Reproducible Research: Peer Assessment 1"
-author: "Cody Weston, PhD"
-date: "March 8, 2016"
-output: 
-  html_document:
-    keep_md: true
----
-```{r, echo = TRUE}
+# Reproducible Research: Peer Assessment 1
+Cody Weston, PhD  
+March 8, 2016  
+
+```r
 library(dplyr)
+```
+
+```
+## 
+## Attaching package: 'dplyr'
+```
+
+```
+## The following objects are masked from 'package:stats':
+## 
+##     filter, lag
+```
+
+```
+## The following objects are masked from 'package:base':
+## 
+##     intersect, setdiff, setequal, union
+```
+
+```r
 library(ggplot2)
 ```
 
@@ -33,37 +49,60 @@ The dataset is a CSV (comma-separated-variable) file with 17,568 observations. T
 
 
 ## Loading and preprocessing the data
-```{r, echo = TRUE}
+
+```r
 activity <- read.csv("activity.csv")
 validActivity <- activity[complete.cases(activity), ]
 ```
 
 ## What is mean total number of steps taken per day?
-```{r, echo = TRUE}
+
+```r
 dailySteps <- aggregate(validActivity$steps, by = list(Category = validActivity$date), sum)
 qplot( x = dailySteps$x, xlab = "Steps per day", ylab = "Frequency", binwidth = 500)
+```
+
+![](PA1_template_files/figure-html/unnamed-chunk-3-1.png)<!-- -->
+
+```r
 mean = mean(dailySteps$x)
 median = median(dailySteps$x)
 ```
 
 ## What is the average daily activity pattern?
-```{r, echo = TRUE}
+
+```r
 averageDay <- aggregate(validActivity$steps, by = list(Category = validActivity$interval), mean)
 plot(type = "l", averageDay, xlab = "5 minute interval", ylab = "average steps")
+```
 
+![](PA1_template_files/figure-html/unnamed-chunk-4-1.png)<!-- -->
+
+```r
 #get the time point with the most steps
 maximumTime = subset(averageDay, averageDay$x == max(averageDay$x))
 
 #the time at which the maximum step count occurs, on average
 print("The time representing the maximum average step count is:") 
-print(maximumTime$Category)
+```
 
+```
+## [1] "The time representing the maximum average step count is:"
+```
+
+```r
+print(maximumTime$Category)
+```
+
+```
+## [1] 835
 ```
 
 
 
 ## Imputing missing values
-```{r, echo = TRUE}
+
+```r
 # Determine missing values
 missingVals <- length(which(is.na(activity$steps)))
 
@@ -76,16 +115,38 @@ for (i in 1:nrow(imputedActivity)) {
 }
 plot3 <- ggplot(imputedActivity, aes(date, steps)) + geom_histogram(stat = "identity",binwidth = .5) +
         labs(title = "Total Number of Steps Taken Each Day (Imputed Data)",x = "Date", y = "Steps")
-print(plot3)
+```
 
+```
+## Warning: Ignoring unknown parameters: binwidth, bins, pad
+```
+
+```r
+print(plot3)
+```
+
+![](PA1_template_files/figure-html/unnamed-chunk-5-1.png)<!-- -->
+
+```r
 imputedSteps <- tapply(imputedActivity$steps, imputedActivity$date, FUN = sum)
 mean(imputedSteps)
+```
+
+```
+## [1] 10766.19
+```
+
+```r
 median(imputedSteps)
 ```
 
-## Are there differences in activity patterns between weekdays and weekends?
-```{r, echo = TRUE}
+```
+## [1] 10766.19
+```
 
+## Are there differences in activity patterns between weekdays and weekends?
+
+```r
 imputedActivity$dateType <-  ifelse(as.POSIXlt(imputedActivity$date)$wday %in% c(0,6), 'weekend', 'weekday')
 averagedData <- aggregate(imputedActivity$steps,
                           list(interval = as.numeric(as.character(imputedActivity$interval)),
@@ -99,5 +160,6 @@ ggplot(averagedData, aes(interval, AverageSteps)) +
     facet_grid(dateType ~ .) +
     xlab("5-minute interval") + 
     ylab("average steps")
-
 ```
+
+![](PA1_template_files/figure-html/unnamed-chunk-6-1.png)<!-- -->
